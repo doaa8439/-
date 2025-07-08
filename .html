@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لعبة تعريف القصة</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fceabb, #f8b500);
+    color: #333;
+    direction: rtl;
+    margin: 0; padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .game-container {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 500px;
+    padding: 30px 40px;
+    text-align: center;
+  }
+  h1 {
+    color: #d35400;
+    margin-bottom: 20px;
+  }
+  .question {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    min-height: 70px;
+  }
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  button.answer-btn {
+    background-color: #f39c12;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button.answer-btn:hover {
+    background-color: #d35400;
+  }
+  .feedback {
+    margin-top: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  .stars {
+    margin-top: 10px;
+    color: #f1c40f;
+    font-size: 1.5rem;
+  }
+  .hidden {
+    display: none;
+  }
+  .restart-btn {
+    margin-top: 30px;
+    background-color: #27ae60;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  .restart-btn:hover {
+    background-color: #1e8449;
+  }
+</style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>لعبة تعريف القصة</h1>
+    <div class="question" id="question">السؤال سيظهر هنا</div>
+    <div class="answers" id="answers">
+      <!-- أزرار الإجابات ستوضع هنا -->
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="stars" id="stars"></div>
+    <button class="restart-btn hidden" id="restartBtn">إعادة اللعب</button>
+  </div>
+
+<script>
+  const quizData = [
+    {
+      question: "ما هو التعريف الصحيح للقصة؟",
+      answers: [
+        "طريقة نستخدمها لشرح فكرة أو تجربة بطريقة تجعل الناس يفهمونها ويشعرون بها",
+        "مجرد سرد للمعلومات بشكل مباشر دون حكاية",
+        "قائمة من الحقائق العلمية فقط"
+      ],
+      correctIndex: 0,
+      star: 1,
+      encouragement: "بداية موفقة"
+    },
+    {
+      question: "ما الذي يميز القصة في عرض الفكرة؟",
+      answers: [
+        "تعتمد على سرد الحكايات مع أشخاص وأحداث لتقريب الفكرة للعقل والقلب",
+        "تعتمد فقط على صور ورسومات بدون كلام",
+        "تعتمد على الجداول والإحصائيات فقط"
+      ],
+      correctIndex: 0,
+      star: 2,
+      encouragement: "استمرّ في التقدم"
+    },
+    {
+      question: "لماذا تعتبر القصة أداة قوية في التعليم والتواصل؟",
+      answers: [
+        "لأنها تُعلِّم وتُمتِع في الوقت نفسه، مما يجعل الفكرة واضحة ومؤثرة",
+        "لأنها تستخدم كلمات معقدة فقط",
+        "لأنها تركز على التكرار فقط"
+      ],
+      correctIndex: 0,
+      star: 3,
+      encouragement: "جعل المولى حياتك قصة مليئة بالإنجازات والسعادات"
+    }
+  ];
+
+  let currentQuestion = 0;
+  let totalStars = 0;
+
+  const questionEl = document.getElementById('question');
+  const answersEl = document.getElementById('answers');
+  const feedbackEl = document.getElementById('feedback');
+  const starsEl = document.getElementById('stars');
+  const restartBtn = document.getElementById('restartBtn');
+
+  function showQuestion() {
+    feedbackEl.textContent = '';
+    starsEl.textContent = '';
+    restartBtn.classList.add('hidden');
+
+    const q = quizData[currentQuestion];
+    questionEl.textContent = q.question;
+    answersEl.innerHTML = '';
+
+    q.answers.forEach((answer, i) => {
+      const btn = document.createElement('button');
+      btn.classList.add('answer-btn');
+      btn.textContent = answer;
+      btn.addEventListener('click', () => selectAnswer(i));
+      answersEl.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(index) {
+    const q = quizData[currentQuestion];
+    if (index === q.correctIndex) {
+      totalStars += q.star;
+      feedbackEl.textContent = q.encouragement;
+      starsEl.textContent = '⭐'.repeat(q.star);
+    } else {
+      feedbackEl.textContent = "إجابة خاطئة، حاول مرة أخرى";
+      starsEl.textContent = '';
+      return;
+    }
+
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+      setTimeout(showQuestion, 2000);
+    } else {
+      setTimeout(showFinalMessage, 2000);
+    }
+  }
+
+  function showFinalMessage() {
+    questionEl.textContent = "شكرًا لمشاركتك! لقد حصلت على " + totalStars + " نجمات.";
+    answersEl.innerHTML = '';
+    feedbackEl.textContent = "نتمنى لك حياة مليئة بالقصص والإنجازات!";
+    starsEl.textContent = '⭐'.repeat(totalStars);
+    restartBtn.classList.remove('hidden');
+  }
+
+  restartBtn.addEventListener('click', () => {
+    currentQuestion = 0;
+    totalStars = 0;
+    showQuestion();
+  });
+
+  showQuestion();
+</script>
+</body>
+</html>
